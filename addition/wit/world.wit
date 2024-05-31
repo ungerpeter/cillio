@@ -1,0 +1,5 @@
+package component:addition;
+
+world addition {
+    export addition: func(a: f32, b: f32) -> f32;
+}
