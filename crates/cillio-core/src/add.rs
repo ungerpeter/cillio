@@ -5,8 +5,8 @@ use wasmtime::{Config, Engine, Store};
 use wasmtime_wasi::{WasiCtx, WasiCtxBuilder, WasiView};
 
 wasmtime::component::bindgen!({
-    path: "addition/wit/world.wit",
-    world: "addition",
+    path: "../cillio-nodes/cillio-addition-node/wit/world.wit",
+    world: "node",
     async: true
 });
 
@@ -17,18 +17,17 @@ pub async fn add(path: PathBuf, x: f32, y: f32) -> wasmtime::Result<f32> {
     let engine = Engine::new(&config)?;
     let mut linker = Linker::new(&engine);
 
-    // Add the command world (aka WASI CLI) to the linker
     wasmtime_wasi::add_to_linker_async(&mut linker).context("Failed to link command world")?;
     let wasi_view = ServerWasiView::new();
     let mut store = Store::new(&engine, wasi_view);
 
     let component = Component::from_file(&engine, path).context("Component file not found")?;
 
-    let (instance, _) = Addition::instantiate_async(&mut store, &component, &linker)
+    let (instance, _) = Node::instantiate_async(&mut store, &component, &linker)
         .await
         .context("Failed to instantiate the addition world")?;
     instance
-        .call_addition(&mut store, x, y)
+        .call_run(&mut store, x, y)
         .await
         .context("Failed to call add function")
 }

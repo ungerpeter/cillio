@@ -1,0 +1,16 @@
+[package]
+name = "cillio-log-number-node"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = "0.4.38"
+wit-bindgen-rt = { version = "0.26.0", features = ["bitflags"] }
+
+[lib]
+crate-type = ["cdylib"]
+
+[package.metadata.component]
+package = "cillio-node:log-number"
+
+[package.metadata.component.dependencies]

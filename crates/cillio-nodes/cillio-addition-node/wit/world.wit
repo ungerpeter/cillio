@@ -1,0 +1,5 @@
+package cillio-node:addition;
+
+world node {
+    export run: func(a: f32, b: f32) -> f32;
+}

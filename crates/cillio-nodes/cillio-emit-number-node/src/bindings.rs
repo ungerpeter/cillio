@@ -2,28 +2,28 @@
 // Options used:
 #[doc(hidden)]
 #[allow(non_snake_case)]
-pub unsafe fn _export_addition_cabi<T: Guest>(arg0: f32, arg1: f32) -> f32 {
+pub unsafe fn _export_run_cabi<T: Guest>() -> f32 {
     #[cfg(target_arch = "wasm32")]
     _rt::run_ctors_once();
-    let result0 = T::addition(arg0, arg1);
+    let result0 = T::run();
     _rt::as_f32(result0)
 }
 pub trait Guest {
-    fn addition(a: f32, b: f32) -> f32;
+    fn run() -> f32;
 }
 #[doc(hidden)]
 
-macro_rules! __export_world_addition_cabi{
+macro_rules! __export_world_node_cabi{
   ($ty:ident with_types_in $($path_to_types:tt)*) => (const _: () = {
 
-    #[export_name = "addition"]
-    unsafe extern "C" fn export_addition(arg0: f32,arg1: f32,) -> f32 {
-      $($path_to_types)*::_export_addition_cabi::<$ty>(arg0, arg1)
+    #[export_name = "run"]
+    unsafe extern "C" fn export_run() -> f32 {
+      $($path_to_types)*::_export_run_cabi::<$ty>()
     }
   };);
 }
 #[doc(hidden)]
-pub(crate) use __export_world_addition_cabi;
+pub(crate) use __export_world_node_cabi;
 mod _rt {
 
     #[cfg(target_arch = "wasm32")]
@@ -72,23 +72,23 @@ mod _rt {
 #[allow(unused_macros)]
 #[doc(hidden)]
 
-macro_rules! __export_addition_impl {
+macro_rules! __export_node_impl {
   ($ty:ident) => (self::export!($ty with_types_in self););
   ($ty:ident with_types_in $($path_to_types_root:tt)*) => (
-  $($path_to_types_root)*::__export_world_addition_cabi!($ty with_types_in $($path_to_types_root)*);
+  $($path_to_types_root)*::__export_world_node_cabi!($ty with_types_in $($path_to_types_root)*);
   )
 }
 #[doc(inline)]
-pub(crate) use __export_addition_impl as export;
+pub(crate) use __export_node_impl as export;
 
 #[cfg(target_arch = "wasm32")]
-#[link_section = "component-type:wit-bindgen:0.25.0:addition:encoded world"]
+#[link_section = "component-type:wit-bindgen:0.25.0:node:encoded world"]
 #[doc(hidden)]
-pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 188] = *b"\
-\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07>\x01A\x02\x01A\x02\x01\
-@\x02\x01av\x01bv\0v\x04\0\x08addition\x01\0\x04\x01\x1bcomponent:addition/addit\
-ion\x04\0\x0b\x0e\x01\0\x08addition\x03\0\0\0G\x09producers\x01\x0cprocessed-by\x02\
-\x0dwit-component\x070.208.1\x10wit-bindgen-rust\x060.25.0";
+pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 174] = *b"\
+\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x074\x01A\x02\x01A\x02\x01\
+@\0\0v\x04\0\x03run\x01\0\x04\x01\x1ccillio-node:emit-number/node\x04\0\x0b\x0a\x01\
+\0\x04node\x03\0\0\0G\x09producers\x01\x0cprocessed-by\x02\x0dwit-component\x070\
+.208.1\x10wit-bindgen-rust\x060.25.0";
 
 #[inline(never)]
 #[doc(hidden)]

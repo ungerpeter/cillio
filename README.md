@@ -1,12 +1,13 @@
 ## Requirements:
+- just: brew install just
 - cargo-component: cargo install cargo-component --locked
 
-## Build wasm:
+## Build:
 ```bash
-cd addition && cargo component build --release
+just build
 ```
 
 ## Run host:
 ```bash
-cargo run --release -- 42 76 ./target/wasm32-wasi/release/addition.wasm
+cargo run -- 42 76 ./target/wasm32-wasi/debug/cillio_addition_node.wasm
 ```

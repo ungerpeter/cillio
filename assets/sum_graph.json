@@ -1,0 +1,69 @@
+{
+  "node_implementations": {
+    "emit-number": {
+      "state": {
+        "number": "number"
+      },
+      "output": {
+        "number": "number"
+      },
+      "wasm": "emit-number.wasm"
+    },
+    "add-numbers": {
+      "input": {
+        "a": "number",
+        "b": "number"
+      },
+      "output": {
+        "sum": "number"
+      },
+      "wasm": "add-numbers.wasm"
+    },
+    "log-number": {
+      "input": {
+        "value": "number"
+      },
+      "wasm": "log-number.wasm"
+    }
+  },
+
+
+  "nodes": {
+    "emitter_1": {
+      "type": "emit-number",
+      "state": {
+        "number": 1
+      }
+    },
+    "emitter_2": {
+      "type": "emit-number",
+      "state": {
+        "number": 2
+      }
+    },
+    "adder": {
+      "type": "add-numbers"
+    },
+    "log": {
+      "type": "log-number"
+    }
+  },
+
+
+  "edges": [
+    {
+      "from": "emitter_1",
+      "to": "adder",
+      "to_port": "a"
+    },
+    {
+      "from": "emitter_2",
+      "to": "adder",
+      "to_port": "b"
+    },
+    {
+      "from": "adder",
+      "to": "log"
+    }
+  ]
+}

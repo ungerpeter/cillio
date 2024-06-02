@@ -1,0 +1,5 @@
+package cillio-node:log-number;
+
+world node {
+    export run: func(number: f32);
+}

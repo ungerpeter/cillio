@@ -1,0 +1,5 @@
+package cillio-node:emit-number;
+
+world node {
+    export run: func() -> f32;
+}

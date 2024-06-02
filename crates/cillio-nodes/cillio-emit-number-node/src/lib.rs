@@ -6,8 +6,9 @@ use bindings::Guest;
 struct Component;
 
 impl Guest for Component {
-    fn addition(a: f32, b: f32) -> f32 {
-        a + b
+
+    fn run() -> f32 {
+        42.0
     }
 }
 
