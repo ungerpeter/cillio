@@ -22,6 +22,7 @@ pub struct Node {
 pub struct Edge {
     pub from: String,
     pub to: String,
+    pub from_port: Option<String>,
     pub to_port: Option<String>,
 }
 

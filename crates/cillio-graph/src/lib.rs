@@ -1,6 +1,6 @@
 use cillio_config::GraphConfig;
-use petgraph::{dot::{Config, Dot}, graph::{DiGraph, NodeIndex}, visit::EdgeRef};
-use std::collections::{HashMap, HashSet};
+use petgraph::{dot::{Config, Dot}, graph::{DiGraph, NodeIndex}};
+use std::collections::HashMap;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -12,14 +12,20 @@ pub enum GraphError {
     GraphStructureError(String),
 }
 
+#[derive(Debug)]
+pub struct EdgeData {
+    pub from_port: Option<String>,
+    pub to_port: Option<String>,
+}
+
 pub struct Graph {
-    graph: DiGraph<String, usize>,
+    graph: DiGraph<String, EdgeData>,
     node_map: HashMap<String, NodeIndex>,
 }
 
 impl Graph {
     pub fn new(config: GraphConfig) -> Result<Self, GraphError> {
-        let mut graph = DiGraph::<String, usize>::new();
+        let mut graph = DiGraph::<String, EdgeData>::new();
         let mut node_map = HashMap::new();
 
         for (node_id, _) in &config.nodes {
@@ -34,14 +40,34 @@ impl Graph {
             let to_index = node_map
                 .get(&edge.to)
                 .ok_or_else(|| GraphError::NodeNotFoundError(edge.to.clone()))?;
-            graph.add_edge(*from_index, *to_index, 1);
+            let edge_data = EdgeData {
+                from_port: edge.from_port.clone(),
+                to_port: edge.to_port.clone(),
+            };
+            graph.add_edge(*from_index, *to_index, edge_data);
         }
 
         Ok(Self { graph, node_map })
     }
 
-    pub fn print(&self) {
-        println!("{:?}", Dot::with_config(&self.graph, &[Config::EdgeNoLabel]));
+    pub fn print_dot(&self) {
+        let dot = Dot::with_attr_getters(
+            &self.graph,
+            &[Config::EdgeNoLabel],
+            &|_, edge| {
+                let edge_data = edge.weight();
+                let mut labels = vec![];
+                if let Some(ref from_port) = edge_data.from_port {
+                    labels.push(format!("from: {}", from_port));
+                }
+                if let Some(ref to_port) = edge_data.to_port {
+                    labels.push(format!("to: {}", to_port));
+                }
+                format!("label=\"{}\"", labels.join("\\n")).into()
+            },
+            &|_, _| String::new().into(),
+        );
+        println!("{:?}", dot);
     }
 
     pub fn node_map(&self) -> &HashMap<String, NodeIndex> {

@@ -35,6 +35,10 @@ enum Commands {
         #[arg(short, long, value_name = "FILE")]
         config: Option<PathBuf>,
     },
+    Dot {
+        #[arg(short, long, value_name = "FILE")]
+        config: Option<PathBuf>,
+    },
 }
 
 fn main() -> Result<(), CliError> {
@@ -51,7 +55,17 @@ fn main() -> Result<(), CliError> {
             print_config(&config);
             println!("Printing graph:");
             let graph = Graph::new(config)?;
-            graph.print();
+            graph.print_dot();
+        }
+        Commands::Dot { config } => {
+            let config_path = config.as_ref().ok_or(CliError::ConfigPathNotProvided)?;
+            let config = load_config(
+                config_path
+                    .to_str()
+                    .ok_or(CliError::ConfigPathNotProvided)?,
+            )?;
+            let graph = Graph::new(config)?;
+            graph.print_dot();
         }
     }
 

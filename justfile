@@ -44,3 +44,6 @@ test:
 
 doc:
     cargo doc --no-deps --open
+
+print-dot:
+    cargo run -p cillio-cli dot -c assets/sum_graph.json | dot -T svg -o assets/sum_graph.svg
