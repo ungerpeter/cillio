@@ -5,21 +5,21 @@ use std::io::Read;
 use thiserror::Error;
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct NodeImplementation {
+pub struct NodeImplementationData {
     pub input: Option<HashMap<String, String>>,
     pub output: Option<HashMap<String, String>>,
     pub state: Option<HashMap<String, String>>,
     pub wasm: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Node {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NodeData {
     pub r#type: String,
     pub state: Option<serde_json::Value>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Edge {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct EdgeData {
     pub from: String,
     pub to: String,
     pub from_port: Option<String>,
@@ -28,9 +28,9 @@ pub struct Edge {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct GraphConfig {
-    pub node_implementations: HashMap<String, NodeImplementation>,
-    pub nodes: HashMap<String, Node>,
-    pub edges: Vec<Edge>,
+    pub node_implementations: HashMap<String, NodeImplementationData>,
+    pub nodes: HashMap<String, NodeData>,
+    pub edges: Vec<EdgeData>,
 }
 
 #[derive(Error, Debug)]

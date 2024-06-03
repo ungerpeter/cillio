@@ -1,9 +1,9 @@
 digraph {
-    0 [ label = "\"emitter_2\"" ]
-    1 [ label = "\"adder\"" ]
-    2 [ label = "\"log\"" ]
-    3 [ label = "\"emitter_1\"" ]
-    3 -> 1 [ label="to: a"]
-    0 -> 1 [ label="to: b"]
-    1 -> 2 [ label=""]
+    0 [ label="adder\nadd-numbers"]
+    1 [ label="emitter_1\nemit-number\n{\"number\":1}"]
+    2 [ label="emitter_2\nemit-number\n{\"number\":2}"]
+    3 [ label="log\nlog-number"]
+    1 -> 0 [ label="to: a"]
+    2 -> 0 [ label="to: b"]
+    0 -> 3 [ label=""]
 }

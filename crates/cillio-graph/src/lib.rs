@@ -1,5 +1,8 @@
-use cillio_config::GraphConfig;
-use petgraph::{dot::{Config, Dot}, graph::{DiGraph, NodeIndex}};
+use cillio_config::{GraphConfig, NodeData};
+use petgraph::{
+    dot::{Config, Dot},
+    graph::{DiGraph, NodeIndex},
+};
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -13,23 +16,41 @@ pub enum GraphError {
 }
 
 #[derive(Debug)]
-pub struct EdgeData {
-    pub from_port: Option<String>,
-    pub to_port: Option<String>,
+pub struct Node {
+    id: String,
+    data: NodeData,
+}
+
+impl Node {
+    pub fn new(id: String, data: NodeData) -> Self {
+        Self { id, data }
+    }
+}
+
+#[derive(Debug)]
+pub struct Edge {
+    from_port: Option<String>,
+    to_port: Option<String>,
+}
+
+impl Edge {
+    pub fn new(from_port: Option<String>, to_port: Option<String>) -> Self {
+        Self { from_port, to_port }
+    }
 }
 
 pub struct Graph {
-    graph: DiGraph<String, EdgeData>,
+    graph: DiGraph<Node, Edge>,
     node_map: HashMap<String, NodeIndex>,
 }
 
 impl Graph {
     pub fn new(config: GraphConfig) -> Result<Self, GraphError> {
-        let mut graph = DiGraph::<String, EdgeData>::new();
+        let mut graph = DiGraph::<Node, Edge>::new();
         let mut node_map = HashMap::new();
 
-        for (node_id, _) in &config.nodes {
-            let index = graph.add_node(node_id.clone());
+        for (node_id, node_data) in &config.nodes {
+            let index = graph.add_node(Node::new(node_id.clone(), node_data.clone()));
             node_map.insert(node_id.clone(), index);
         }
 
@@ -40,7 +61,7 @@ impl Graph {
             let to_index = node_map
                 .get(&edge.to)
                 .ok_or_else(|| GraphError::NodeNotFoundError(edge.to.clone()))?;
-            let edge_data = EdgeData {
+            let edge_data = Edge {
                 from_port: edge.from_port.clone(),
                 to_port: edge.to_port.clone(),
             };
@@ -53,7 +74,7 @@ impl Graph {
     pub fn print_dot(&self) {
         let dot = Dot::with_attr_getters(
             &self.graph,
-            &[Config::EdgeNoLabel],
+            &[Config::EdgeNoLabel, Config::NodeNoLabel],
             &|_, edge| {
                 let edge_data = edge.weight();
                 let mut labels = vec![];
@@ -65,7 +86,13 @@ impl Graph {
                 }
                 format!("label=\"{}\"", labels.join("\\n")).into()
             },
-            &|_, _| String::new().into(),
+            &|_, (_, node)| {
+                let mut label = format!("{}\\n{}", node.id, node.data.r#type);
+                if let Some(ref state) = node.data.state {
+                    label.push_str(&format!("\\n{}", state).replace("\"", "\\\""));
+                }
+                format!("label=\"{}\"", label).into()
+            },
         );
         println!("{:?}", dot);
     }
