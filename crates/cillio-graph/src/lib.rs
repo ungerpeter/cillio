@@ -1,6 +1,6 @@
 use cillio_config::GraphConfig;
-use petgraph::graph::{DiGraph, NodeIndex};
-use std::collections::HashMap;
+use petgraph::{dot::{Config, Dot}, graph::{DiGraph, NodeIndex}, visit::EdgeRef};
+use std::collections::{HashMap, HashSet};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -41,14 +41,7 @@ impl Graph {
     }
 
     pub fn print(&self) {
-        for node in self.graph.node_indices() {
-            println!("Node: {}", self.graph[node]);
-        }
-
-        for edge in self.graph.edge_indices() {
-            let (from, to) = self.graph.edge_endpoints(edge).unwrap();
-            println!("Edge: {} -> {}", self.graph[from], self.graph[to]);
-        }
+        println!("{:?}", Dot::with_config(&self.graph, &[Config::EdgeNoLabel]));
     }
 
     pub fn node_map(&self) -> &HashMap<String, NodeIndex> {

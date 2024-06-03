@@ -1,0 +1,9 @@
+digraph {
+    0 [ label = "\"emitter_1\"" ]
+    1 [ label = "\"log\"" ]
+    2 [ label = "\"adder\"" ]
+    3 [ label = "\"emitter_2\"" ]
+    0 -> 2 [ ]
+    3 -> 2 [ ]
+    2 -> 1 [ ]
+}
