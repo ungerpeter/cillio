@@ -1,8 +1,8 @@
 [workspace]
-members = [
-    "crates/cillio-core",
+members = [ "crates/cillio-cli", "crates/cillio-config",
+    "crates/cillio-core", "crates/cillio-graph",
     "crates/cillio-nodes/*"
-]
+, "crates/cillio-runtime"]
 resolver = "2"
 
 [profile.dev]

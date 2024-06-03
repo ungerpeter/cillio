@@ -485,6 +485,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "cillio-cli"
+version = "0.1.0"
+dependencies = [
+ "cillio-config",
+ "clap",
+ "thiserror",
+]
+
+[[package]]
+name = "cillio-config"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "cillio-core"
 version = "0.1.0"
 dependencies = [
@@ -503,11 +521,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "cillio-graph"
+version = "0.1.0"
+dependencies = [
+ "cillio-config",
+ "petgraph",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "cillio-log-number-node"
 version = "0.1.0"
 dependencies = [
  "chrono",
  "wit-bindgen-rt",
+]
+
+[[package]]
+name = "cillio-runtime"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "cillio-config",
+ "thiserror",
+ "wasmtime",
+ "wasmtime-wasi",
 ]
 
 [[package]]
@@ -925,6 +964,12 @@ dependencies = [
  "rustix 0.38.34",
  "windows-sys 0.52.0",
 ]
+
+[[package]]
+name = "fixedbitset"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ce7134b9999ecaf8bcd65542e436736ef32ddca1b3e06094cb6ec5755203b80"
 
 [[package]]
 name = "form_urlencoded"
@@ -1474,6 +1519,16 @@ name = "percent-encoding"
 version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3148f5046208a5d56bcfc03053e3ca6334e51da8dfb19b6cdc8b306fae3283e"
+
+[[package]]
+name = "petgraph"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4c5cc86750666a3ed20bdaf5ca2a0344f9c67674cae0515bec2da16fbaa47db"
+dependencies = [
+ "fixedbitset",
+ "indexmap",
+]
 
 [[package]]
 name = "pin-project-lite"

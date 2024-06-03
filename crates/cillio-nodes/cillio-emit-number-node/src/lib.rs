@@ -6,7 +6,6 @@ use bindings::Guest;
 struct Component;
 
 impl Guest for Component {
-
     fn run() -> f32 {
         42.0
     }
