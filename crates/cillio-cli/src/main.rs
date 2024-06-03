@@ -1,4 +1,5 @@
 use cillio_config::{load_config, print_config, ConfigError};
+use cillio_graph::{Graph, GraphError};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 use thiserror::Error;
@@ -10,6 +11,9 @@ pub enum CliError {
 
     #[error("Configuration file path not provided")]
     ConfigPathNotProvided,
+
+    #[error("Failed to build graph: {0}")]
+    GraphError(#[from] GraphError),
 }
 
 #[derive(Parser)]
@@ -45,6 +49,9 @@ fn main() -> Result<(), CliError> {
                     .ok_or(CliError::ConfigPathNotProvided)?,
             )?;
             print_config(&config);
+            println!("Printing graph:");
+            let graph = Graph::new(config)?;
+            graph.print();
         }
     }
 

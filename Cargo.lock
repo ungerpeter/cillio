@@ -489,6 +489,7 @@ name = "cillio-cli"
 version = "0.1.0"
 dependencies = [
  "cillio-config",
+ "cillio-graph",
  "clap",
  "thiserror",
 ]
