@@ -3,6 +3,7 @@ set shell := ["bash", "-cu"]
 CORE_DIR := "crates/cillio-core"
 CONFIG_DIR := "crates/cillio-config"
 GRAPH_DIR := "crates/cillio-graph"
+GRAPH_COMPONENT_DIR := "crates/cillio-graph-component"
 NODE_IMPLEMENTATIONS_DIR := "crates/cillio-nodes"
 TARGET_DIR := "target"
 
@@ -23,6 +24,9 @@ build-config:
 
 build-graph:
     cargo build --manifest-path {{GRAPH_DIR}}/Cargo.toml
+
+build-graph-component:
+    cargo component build --manifest-path {{GRAPH_COMPONENT_DIR}}/Cargo.toml
 
 build-node-implementations:
     @find {{NODE_IMPLEMENTATIONS_DIR}} -maxdepth 1 -mindepth 1 -type d | while read dir; do \
@@ -50,3 +54,7 @@ print:
 
 save-dot:
     cargo run -p cillio-cli dot -c assets/sum_graph.json | dot -T svg -o assets/sum_graph.svg
+
+run:
+    just build-graph-component
+    cargo run -p cillio-cli run

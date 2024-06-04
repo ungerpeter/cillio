@@ -1,5 +1,6 @@
 use cillio_config::{load_config, print_config, ConfigError};
 use cillio_graph::{Graph, GraphError};
+use cillio_runtime::Runtime;
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 use thiserror::Error;
@@ -30,7 +31,6 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Print the computation graph
     Print {
         #[arg(short, long, value_name = "FILE")]
         config: Option<PathBuf>,
@@ -39,9 +39,11 @@ enum Commands {
         #[arg(short, long, value_name = "FILE")]
         config: Option<PathBuf>,
     },
+    Run,
 }
 
-fn main() -> Result<(), CliError> {
+#[async_std::main]
+async fn main() -> anyhow::Result<(), CliError> {
     let cli = Cli::parse();
 
     match &cli.command {
@@ -66,6 +68,23 @@ fn main() -> Result<(), CliError> {
             )?;
             let graph = Graph::new(config)?;
             graph.print_dot();
+        }
+        Commands::Run => {
+            let mut runtime = Runtime::new();
+            match runtime
+                .load_graph(PathBuf::from(
+                    "target/wasm32-wasi/debug/cillio_graph_component.wasm",
+                ))
+                .await
+            {
+                Ok((instance, _)) => instance
+                    .call_compute(&mut runtime.get_store())
+                    .await
+                    .unwrap(),
+                Err(err) => {
+                    println!("Error: {}", err)
+                }
+            }
         }
     }
 

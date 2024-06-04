@@ -1,0 +1,24 @@
+package cillio:graph@0.1.0;
+
+interface graph {
+
+  type payload = list<u8>;
+
+  variant error {
+    computation-error,
+    resource-error,
+    other(string),
+  }
+
+  resource state {
+    get: func(key: string) -> result<option<payload>, error>;
+    set: func(key: string, value: payload) -> result<_, error>;
+  }
+
+  compute: func() -> result<_, error>;
+
+}
+
+world graph-world {
+  export compute: func();
+}

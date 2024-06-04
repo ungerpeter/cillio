@@ -488,8 +488,11 @@ dependencies = [
 name = "cillio-cli"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "async-std",
  "cillio-config",
  "cillio-graph",
+ "cillio-runtime",
  "clap",
  "thiserror",
 ]
@@ -529,6 +532,13 @@ dependencies = [
  "petgraph",
  "serde_json",
  "thiserror",
+]
+
+[[package]]
+name = "cillio-graph-component"
+version = "0.1.0"
+dependencies = [
+ "wit-bindgen-rt",
 ]
 
 [[package]]
