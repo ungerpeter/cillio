@@ -1,8 +1,59 @@
 package cillio:graph@0.1.0;
 
-interface graph {
+// THANKS!
+// https://github.com/peterhuene/wasmbuilder.app/blob/main/crates/graph/world.wit
+interface composition-graph {
 
-  type payload = list<u8>;
+  type component-id = u32;
+  type instance-id = u32;
+
+  enum item-kind {
+      module,
+      function,
+      value,
+      %type,
+      instance,
+      component,
+  }
+
+  record %import {
+      name: string,
+      kind: item-kind,
+  }
+
+  record %export {
+      name: string,
+      kind: item-kind,
+  }
+
+  record component {
+      id: component-id,
+      name: string,
+      imports: list<%import>,
+      exports: list<%export>,
+      wit: string
+  }
+
+  record encode-options {
+      define-components: bool,
+      %export: option<instance-id>,
+      validate: bool,
+  }
+
+  resource graph {
+      constructor();
+      add-component: func(name: string, bytes: list<u8>) -> result<component, string>;
+      instantiate-component: func(id: component-id) -> result<instance-id, string>;
+      connect-instances: func(source: instance-id, source-export: option<u32>, target: instance-id, target-import: u32) -> result<_, string>;
+      remove-component: func(id: component-id);
+      remove-instance: func(id: instance-id);
+      disconnect-instances: func(source: instance-id, target: instance-id, target-import: u32) -> result<_, string>;
+      print-graph: func() -> string;
+      encode-graph: func(options: encode-options) -> result<list<u8>, string>;
+  }
+}
+
+interface graph {
 
   variant error {
     computation-error,
@@ -10,15 +61,12 @@ interface graph {
     other(string),
   }
 
-  resource state {
-    get: func(key: string) -> result<option<payload>, error>;
-    set: func(key: string, value: payload) -> result<_, error>;
-  }
-
   compute: func() -> result<_, error>;
+  print: func() -> result<string, error>;
 
 }
 
 world graph-world {
-  export compute: func();
+  export composition-graph;
+  // export graph;
 }

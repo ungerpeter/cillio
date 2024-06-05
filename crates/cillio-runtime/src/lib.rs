@@ -55,7 +55,7 @@ impl WasiView for ServerWasiView {
 }
 
 pub struct Runtime {
-    config: Config,
+    _config: Config,
     engine: Engine,
     linker: Linker<ServerWasiView>,
     store: Store<ServerWasiView>,
@@ -75,7 +75,7 @@ impl Runtime {
         let store = Store::new(&engine, wasi_view);
 
         Self {
-            config,
+            _config: config,
             engine,
             linker,
             store,
@@ -91,16 +91,6 @@ impl Runtime {
         GraphWorld::instantiate_async(&mut self.store, &component, &self.linker)
             .await
             .context("Failed to instantiate the graph world")
-    }
-
-    pub async fn compute_graph_instance(
-        &mut self,
-        instance: &GraphWorld,
-    ) -> Result<(), anyhow::Error> {
-        instance
-            .call_compute(&mut self.store)
-            .await
-            .context("Failed to call compute function")
     }
 
     pub fn get_store(&mut self) -> &mut Store<ServerWasiView> {
