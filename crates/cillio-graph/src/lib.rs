@@ -15,15 +15,18 @@ pub enum GraphError {
     GraphStructureError(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
-    id: String,
+    pub id: String,
     data: NodeData,
 }
 
 impl Node {
     pub fn new(id: String, data: NodeData) -> Self {
         Self { id, data }
+    }
+    pub fn data(&self) -> &NodeData {
+        &self.data
     }
 }
 
@@ -39,13 +42,14 @@ impl Edge {
     }
 }
 
+#[derive(Debug)]
 pub struct Graph {
     graph: DiGraph<Node, Edge>,
     node_map: HashMap<String, NodeIndex>,
 }
 
 impl Graph {
-    pub fn new(config: GraphConfig) -> Result<Self, GraphError> {
+    pub fn new(config: &GraphConfig) -> Result<Self, GraphError> {
         let mut graph = DiGraph::<Node, Edge>::new();
         let mut node_map = HashMap::new();
 
@@ -99,5 +103,9 @@ impl Graph {
 
     pub fn node_map(&self) -> &HashMap<String, NodeIndex> {
         &self.node_map
+    }
+
+    pub fn graph(&self) -> &DiGraph<Node, Edge> {
+        &self.graph
     }
 }

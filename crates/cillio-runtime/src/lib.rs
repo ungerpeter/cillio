@@ -1,8 +1,10 @@
+pub mod execution_plan;
+
 use anyhow::Context;
-use component::Component;
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Instant};
 use thiserror::Error;
-use wasmtime::component::Linker;
+use wasmtime::component::{Component, Linker};
+use wasmtime::Engine;
 use wasmtime::*;
 use wasmtime_wasi::*;
 
@@ -33,6 +35,15 @@ pub enum RuntimeError {
 pub struct ServerWasiView {
     table: ResourceTable,
     ctx: WasiCtx,
+}
+
+impl std::fmt::Debug for ServerWasiView {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ServerWasiView")
+            .field("table", &self.table)
+            .field("ctx", &"WasiCtx")
+            .finish()
+    }
 }
 
 impl ServerWasiView {
@@ -82,18 +93,38 @@ impl Runtime {
         }
     }
 
+    pub async fn load_component(&mut self, bytes: &Vec<u8>) -> Result<Component, anyhow::Error> {
+        let start_time = Instant::now();
+        println!("-- Component from bytes...");
+        let component =
+            Component::new(&self.engine, bytes).context("Failed to load component from binary")?;
+        println!("-- Time taken: {} ms", start_time.elapsed().as_millis());
+        Ok(component)
+    }
+
     pub async fn load_graph(
         &mut self,
         path: PathBuf,
     ) -> Result<(GraphWorld, wasmtime::component::Instance), anyhow::Error> {
+        let start_time = Instant::now();
+        println!("--Component from file...");
         let component =
             Component::from_file(&self.engine, path).context("Component file not found")?;
-        GraphWorld::instantiate_async(&mut self.store, &component, &self.linker)
+        println!("Time taken: {} ms", start_time.elapsed().as_millis());
+        let start_time = Instant::now();
+        println!("--Instantiate component...");
+        let ret = GraphWorld::instantiate_async(&mut self.store, &component, &self.linker)
             .await
-            .context("Failed to instantiate the graph world")
+            .context("Failed to instantiate the graph world");
+        println!("Time taken: {} ms", start_time.elapsed().as_millis());
+        ret
     }
 
     pub fn get_store(&mut self) -> &mut Store<ServerWasiView> {
         &mut self.store
+    }
+
+    pub fn get_linker(&mut self) -> &mut Linker<ServerWasiView> {
+        &mut self.linker
     }
 }

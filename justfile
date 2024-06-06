@@ -31,17 +31,12 @@ build-graph-component:
 
 build-node-implementations:
     @find {{NODE_IMPLEMENTATIONS_DIR}} -maxdepth 1 -mindepth 1 -type d | while read dir; do \
-        echo "Building node in ${dir}"; \
-        (cd ${dir} && cargo component build); \
+        just build-wasm ${dir}; \
     done
 
-build-wasm target target_dir:
+build-wasm target:
     @echo '🏗️ Building wasm: {{target}}…'
-    @if [ -n "{{target_dir}}" ]; then \
-        cargo component build --manifest-path {{target}}/Cargo.toml --release --out-dir {{target_dir}} -Z unstable-options; \
-    else \
-        cargo component build --manifest-path {{target}}/Cargo.toml --release; \
-    fi
+    @cd {{target}} && cargo component build --release;
 
 optimize-wasm target:
     @echo '🏎️ Optimizing wasm: {{target}}…'
@@ -50,14 +45,13 @@ optimize-wasm target:
 compile-sum-graph:
     @echo "🧹 Cleaning compiled/sum-graph"
     @rm -rf compiled/sum-graph
-    @just build-wasm "crates/cillio-nodes/cillio-emit-number-node" "compiled/sum-graph"
-    @just optimize-wasm "compiled/sum-graph/cillio_emit_number_node"
-    @just build-wasm "crates/cillio-nodes/cillio-addition-node" "compiled/sum-graph"
-    @just optimize-wasm "compiled/sum-graph/cillio_addition_node"
-    @just build-wasm "crates/cillio-nodes/cillio-log-number-node" "compiled/sum-graph"
-    @just optimize-wasm "compiled/sum-graph/cillio_log_number_node"
-    @echo "📦 Copying assets/sum_graph.json to compiled/sum-graph/graph.json"
-    @cp assets/sum_graph.json compiled/sum-graph/graph.json
+    @echo "📦 Copy sum-graph.json"
+    @mkdir -p compiled/sum-graph && cp assets/sum_graph.json compiled/sum-graph/graph.json
+    @just build-node-implementations
+    @echo "📦 Copying node implementations"
+    cp -r target/wasm32-wasi/release/cillio_emit_number_node.wasm compiled/sum-graph
+    cp -r target/wasm32-wasi/release/cillio_addition_node.wasm compiled/sum-graph
+    cp -r target/wasm32-wasi/release/cillio_log_number_node.wasm compiled/sum-graph
     @echo "🟢 Done compiling:"
     @ls -lh compiled/sum-graph
 
@@ -82,6 +76,5 @@ print:
 save-dot:
     cargo run -p cillio-cli dot -c assets/sum_graph.json | dot -T svg -o assets/sum_graph.svg
 
-run:
-    just build-graph-component
-    cargo run -p cillio-cli --release run
+run: compile-sum-graph
+    cargo run -p cillio-cli run

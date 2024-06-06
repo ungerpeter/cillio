@@ -8,6 +8,9 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.86"
 cillio-config = { path = "../cillio-config" }
+cillio-graph = { path = "../cillio-graph" }
+petgraph = "0.6.5"
+serde_json = "1.0.117"
 thiserror = "1.0.61"
 wasmtime = { version = "21.0.1", features = ["async"] }
 wasmtime-wasi = "21.0.1"

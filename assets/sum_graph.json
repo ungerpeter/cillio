@@ -7,7 +7,7 @@
       "output": {
         "number": "number"
       },
-      "wasm": "emit-number.wasm"
+      "wasm": "cillio_emit_number_node"
     },
     "add-numbers": {
       "input": {
@@ -17,16 +17,15 @@
       "output": {
         "sum": "number"
       },
-      "wasm": "add-numbers.wasm"
+      "wasm": "cillio_addition_node"
     },
     "log-number": {
       "input": {
         "value": "number"
       },
-      "wasm": "log-number.wasm"
+      "wasm": "cillio_log_number_node"
     }
   },
-
 
   "nodes": {
     "emitter_1": {
@@ -48,7 +47,6 @@
       "type": "log-number"
     }
   },
-
 
   "edges": [
     {

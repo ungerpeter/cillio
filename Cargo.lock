@@ -568,6 +568,9 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "cillio-config",
+ "cillio-graph",
+ "petgraph",
+ "serde_json",
  "thiserror",
  "wasmtime",
  "wasmtime-wasi",

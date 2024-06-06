@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::Read;
 use thiserror::Error;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct NodeImplementationData {
     pub input: Option<HashMap<String, String>>,
     pub output: Option<HashMap<String, String>>,
@@ -26,7 +26,7 @@ pub struct EdgeData {
     pub to_port: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GraphConfig {
     pub node_implementations: HashMap<String, NodeImplementationData>,
     pub nodes: HashMap<String, NodeData>,
