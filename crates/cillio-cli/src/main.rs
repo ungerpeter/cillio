@@ -85,7 +85,7 @@ async fn main() -> anyhow::Result<(), CliError> {
             println!("Load graph component...");
             let (graph_world, _) = runtime
                 .load_graph(PathBuf::from(
-                    "target/wasm32-wasi/debug/cillio_graph_component.wasm",
+                    "target/wasm32-wasi/release/cillio_graph_component.wasm",
                 ))
                 .await
                 .expect("Failed to load wasm module");
