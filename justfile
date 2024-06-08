@@ -6,6 +6,7 @@ GRAPH_DIR := "crates/cillio-graph"
 GRAPH_COMPONENT_DIR := "crates/cillio-graph-component"
 NODE_IMPLEMENTATIONS_DIR := "crates/cillio-nodes"
 TARGET_DIR := "target"
+DOCS_DIR := "docs"
 
 default:
   just --list
@@ -41,6 +42,15 @@ build-wasm target:
 optimize-wasm target:
     @echo '🏎️ Optimizing wasm: {{target}}…'
     @wasm-opt -Oz --enable-bulk-memory -o {{target}}.wasm {{target}}.wasm
+
+compile-docs:
+    @echo "📚 Compiling docs"
+    @find {{DOCS_DIR}} -name "*.mmd" -mindepth 1 | while read input; do \
+        echo "📝 Compiling ${input}"; \
+        output="${input%.mmd}.svg" && \
+        mmdc -i "${input}" -o "${output}" -t dark -b transparent; \
+    done
+    @echo "🟢 Done compiling docs"
 
 compile-sum-graph:
     @echo "🧹 Cleaning compiled/sum-graph"
