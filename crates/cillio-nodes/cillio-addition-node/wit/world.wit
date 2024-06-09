@@ -1,5 +1,19 @@
-package cillio-node:addition;
+package cillio-node:addition@0.1.0;
 
-world node {
-    export run: func(a: f32, b: f32) -> f32;
+interface types {
+    record inputs {
+        a: f32,
+        b: f32,
+    } 
+    record outputs {
+        sum: f32,
+    }
+    variant error {
+        process-error(string),
+    }
+}
+
+world addition {
+    use types.{inputs, outputs, error};
+    export process: func(in: inputs) -> result<outputs, error>;
 }

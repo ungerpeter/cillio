@@ -1,5 +1,15 @@
-package cillio-node:emit-number;
+package cillio-node:emit-number@0.1.0;
 
-world node {
-    export run: func() -> f32;
+interface types {
+    record outputs {
+        number: f32,
+    }
+    variant error {
+        process-error(string),
+    }
+}
+
+world emit-number {
+    use types.{outputs, error};
+    export process: func() -> result<outputs, error>;
 }

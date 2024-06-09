@@ -574,6 +574,7 @@ dependencies = [
  "thiserror",
  "wasmtime",
  "wasmtime-wasi",
+ "wit-component",
 ]
 
 [[package]]

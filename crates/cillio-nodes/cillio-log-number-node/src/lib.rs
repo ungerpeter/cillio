@@ -1,15 +1,20 @@
 #[allow(warnings)]
 mod bindings;
 
-use bindings::Guest;
+use bindings::{Error, Guest, Inputs};
 use chrono::prelude::*;
 
 struct Component;
 
 impl Guest for Component {
-    fn run(number: f32) {
+    fn process(in_: Inputs) -> Option<Error> {
         let current_time = Local::now();
-        println!("[{}] {}", current_time.format("%Y-%m-%d %H:%M:%S"), number);
+        println!(
+            "[{}] {}",
+            current_time.format("%Y-%m-%d %H:%M:%S"),
+            in_.number
+        );
+        None
     }
 }
 

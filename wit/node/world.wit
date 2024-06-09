@@ -1,0 +1,10 @@
+package cillio:node@0.1.0;
+
+interface host {
+  type state = list<u8>;
+  get-state: func () -> option<state>;
+}
+
+world node {
+  import host;
+}

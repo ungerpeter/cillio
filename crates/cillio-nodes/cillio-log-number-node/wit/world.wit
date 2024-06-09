@@ -1,5 +1,15 @@
-package cillio-node:log-number;
+package cillio-node:log-number@0.1.0;
 
-world node {
-    export run: func(number: f32);
+interface types {
+    record inputs {
+        number: f32,
+    } 
+    variant error {
+        process-error(string),
+    }
+}
+
+world log-number {
+    use types.{inputs, error};
+    export process: func(in: inputs) -> option<error>;
 }

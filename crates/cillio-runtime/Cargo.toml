@@ -14,3 +14,4 @@ serde_json = "1.0.117"
 thiserror = "1.0.61"
 wasmtime = { version = "21.0.1", features = ["async"] }
 wasmtime-wasi = "21.0.1"
+wit-component = "0.209.1"

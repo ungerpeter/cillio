@@ -1,13 +1,14 @@
 #[allow(warnings)]
 mod bindings;
 
-use bindings::Guest;
+use bindings::{Error, Guest, Inputs, Outputs};
 
 struct Component;
 
 impl Guest for Component {
-    fn run(a: f32, b: f32) -> f32 {
-        a + b
+    fn process(in_: Inputs) -> Result<Outputs, Error> {
+        let out = Outputs { sum: in_.a + in_.b };
+        Ok(out)
     }
 }
 
