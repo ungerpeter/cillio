@@ -1,13 +1,24 @@
 ## Requirements:
+
+- rust: >= 1.7 -> https://www.rust-lang.org/tools/install
 - just: brew install just
 - cargo-component: cargo install cargo-component --locked
+- (optional) graphviz: brew install graphviz
 
-## Build:
+## Available tasks:
+
 ```bash
-just build
+just
 ```
 
-## Run host:
+## Run:
+
 ```bash
-cargo run -- 42 76 ./target/wasm32-wasi/debug/cillio_addition_node.wasm
+just run
+```
+
+## Build:
+
+```bash
+just build
 ```

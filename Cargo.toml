@@ -1,12 +1,10 @@
 [workspace]
 members = [
-    "crates/cillio-cli",
-    "crates/cillio-config",
-    "crates/cillio-core",
-    "crates/cillio-graph",
-    "crates/cillio-graph-component",
-    "crates/cillio-nodes/*",
-    "crates/cillio-runtime",
+    "crates/cli",
+    "crates/config",
+    "crates/graph",
+    "crates/components/*",
+    "crates/runtime",
 ]
 resolver = "2"
 

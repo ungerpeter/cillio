@@ -46,7 +46,6 @@ enum Commands {
         config: Option<PathBuf>,
     },
     Run,
-    TestComposition,
 }
 
 #[async_std::main]
@@ -77,9 +76,6 @@ async fn main() -> anyhow::Result<(), CliError> {
             graph.print_dot();
         }
         Commands::Run => test_sum_graph().await.expect("Error testing sum graph"),
-        Commands::TestComposition => test_graph_component_composition()
-            .await
-            .expect("Error testing composition"),
     }
 
     Ok(())
@@ -166,52 +162,5 @@ async fn test_sum_graph() -> Result<(), anyhow::Error> {
         "Total Time taken: {} ms",
         total_start_time.elapsed().as_millis()
     );
-    Ok(())
-}
-
-async fn test_graph_component_composition() -> Result<(), anyhow::Error> {
-    // let start_time = Instant::now();
-    // println!("Create runtime...");
-    // let mut runtime = Runtime::new();
-    // println!("Time taken: {} ms", start_time.elapsed().as_millis());
-
-    // let start_time = Instant::now();
-    // println!("Load graph component...");
-    // let (graph_world, _) = runtime
-    //     .load_graph(PathBuf::from(
-    //         "target/wasm32-wasi/release/cillio_graph_component.wasm",
-    //     ))
-    //     .await
-    //     .expect("Failed to load wasm module");
-    // println!("Time taken: {} ms", start_time.elapsed().as_millis());
-
-    // let start_time = Instant::now();
-    // println!("Add component to graph...");
-    // graph_world
-    //     .cillio_graph_composition_graph()
-    //     .graph()
-    //     .call_add_component(
-    //         runtime.get_store(),
-    //         composition_graph_res,
-    //         "test",
-    //         wasm_module_buffer.as_slice().into(),
-    //     )
-    //     .await
-    //     .expect("Failed to call add_component")
-    //     .expect("Failed to add component");
-    // println!("Time taken: {} ms", start_time.elapsed().as_millis());
-
-    // let start_time = Instant::now();
-    // println!("Compute graph...");
-    // let computed_graph = graph_world
-    //     .cillio_graph_composition_graph()
-    //     .graph()
-    //     .call_print_graph(runtime.get_store(), composition_graph_res)
-    //     .await
-    //     .expect("Failed to call print_graph");
-    // println!("Time taken: {} ms", start_time.elapsed().as_millis());
-
-    // println!("Computed graph:\n{}", computed_graph);
-
     Ok(())
 }

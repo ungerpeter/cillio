@@ -88,14 +88,14 @@ impl Graph {
                 if let Some(ref to_port) = edge_data.to_port {
                     labels.push(format!("to: {}", to_port));
                 }
-                format!("label=\"{}\"", labels.join("\\n")).into()
+                format!("label=\"{}\"", labels.join("\\n"))
             },
             &|_, (_, node)| {
                 let mut label = format!("{}\\n{}", node.id, node.data.r#type);
                 if let Some(ref state) = node.data.state {
                     label.push_str(&format!("\\n{}", state).replace("\"", "\\\""));
                 }
-                format!("label=\"{}\"", label).into()
+                format!("label=\"{}\"", label)
             },
         );
         println!("{:?}", dot);

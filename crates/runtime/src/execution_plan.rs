@@ -1,5 +1,3 @@
-use std::{any::Any, borrow::Borrow};
-
 use cillio_graph::Graph;
 use petgraph::algo::toposort;
 use serde_json::Value;
@@ -21,7 +19,7 @@ impl<S: std::fmt::Debug> ExecutionStep<S> {
             self.node_id, self.node_type, self.node_state,
         );
         let instance = runtime
-            .initialize_node(&self.node_type.as_str(), Some(&self.node_state))
+            .initialize_node(self.node_type.as_str(), Some(&self.node_state))
             .await?;
 
         let run_fn_name = "process";
@@ -99,11 +97,15 @@ impl ExecutionPlan {
     pub async fn execute(&self, runtime: &mut Runtime) -> Result<Vec<()>, anyhow::Error> {
         let store_data = runtime.get_store().data();
         println!("Execute: {:?}", store_data);
-        let mut all_results = Vec::new();
         for step in &self.steps {
-            let step_results = step.execute(runtime).await?;
-            all_results.push(step_results);
+            step.execute(runtime).await?;
         }
-        Ok(all_results)
+        Ok(vec![])
+    }
+}
+
+impl Default for ExecutionPlan {
+    fn default() -> Self {
+        ExecutionPlan::new()
     }
 }

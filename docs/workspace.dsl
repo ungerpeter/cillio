@@ -6,20 +6,20 @@ workspace {
         user = person "User"
         system_cillio = softwareSystem "cillio" {
             container_cillio_cli = container "CLI" {
-                cillio_cli = component "CLI" "TBD"
+                cillio_cli = component "CLI" "Command Line Interface"
             }
             container_cillio_libs = container "Cillio Libs" {
-                cillio_config = component "Config" "TBD"
-                cillio_graph = component "Graph" "TBD"
-                cillio_nodes = component "Nodes" "TBD"
-                cillio_runtime = component "Runtime" "TBD"
+                cillio_config = component "Config" "Graph Config Parser and Validator"
+                cillio_graph = component "Graph" "Graph Data Structure"
+                cillio_nodes = component "Nodes" "Node Data Structure"
+                cillio_runtime = component "Runtime" "Graph Execution Engine"
             }
         }
 
         user -> cillio_cli "Uses"
-        cillio_cli -> cillio_config "Uses"
-        cillio_cli -> cillio_graph "Uses"
-        cillio_cli -> cillio_runtime "Uses"
+        cillio_cli -> cillio_config "Parses config"
+        cillio_cli -> cillio_graph "Create graph"
+        cillio_cli -> cillio_runtime "Executes graph"
 
     }
 
@@ -42,6 +42,12 @@ workspace {
         image cillio_runtime "Sequence-Diagram" {
             image compute_graph.svg
             title "CLI Invocation"
+        }
+
+        styles {
+            element "Person" {
+                shape person
+            }
         }
     }
 
