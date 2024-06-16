@@ -84,3 +84,6 @@ save-dot:
 
 run: compile-sum-graph
     cargo run -p cillio-cli run
+
+tui:
+    cargo run -p cillio-tui
