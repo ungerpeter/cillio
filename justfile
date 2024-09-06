@@ -53,7 +53,7 @@ compile-sum-graph: build-components
     @echo "🧹 Cleaning compiled/sum-graph"
     @rm -rf compiled/sum-graph
     @echo "📦 Copy sum-graph.json"
-    @mkdir -p compiled/sum-graph && cp assets/sum_graph.json compiled/sum-graph/graph.json
+    @mkdir -p compiled/sum-graph && cp assets/sum_graph/sum_graph.json compiled/sum-graph/graph.json
     @echo "📦 Copying node implementations"
     cp -r target/wasm32-wasi/release/cillio_emit_number_node.wasm compiled/sum-graph
     cp -r target/wasm32-wasi/release/cillio_addition_node.wasm compiled/sum-graph
@@ -77,10 +77,10 @@ doc:
     cargo doc --no-deps --open
 
 print: 
-    cargo run -p cillio-cli print -c assets/sum_graph.json
+    cargo run -p cillio-cli print -c assets/sum_graph/sum_graph.json
 
 save-dot:
-    cargo run -p cillio-cli dot -c assets/sum_graph.json | dot -T svg -o assets/sum_graph.svg
+    cargo run -p cillio-cli dot -c assets/sum_graph/sum_graph.json | dot -T svg -o assets/sum_graph/sum_graph.svg
 
 run: compile-sum-graph
     cargo run -p cillio-cli run
