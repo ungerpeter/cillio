@@ -28,6 +28,8 @@ impl<S: std::fmt::Debug> ExecutionStep<S> {
             .get_func(&mut runtime.store, run_fn_name)
             .ok_or(anyhow::anyhow!("Function not found"))?;
 
+        let fn_params = run_fn.params(&runtime.store);
+        println!("Function params: {:?}", fn_params);
         let params = [];
         let mut returns = [Val::Record(Vec::new())];
         run_fn

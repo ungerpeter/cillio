@@ -1,10 +1,12 @@
 #![feature(iterator_try_collect)]
 
 pub mod execution_plan;
+pub mod runtime_data;
 
 use anyhow::Context;
 use cillio::node::host::{Host, State};
 use component::types::{ComponentFunc, ComponentItem};
+use runtime_data::RuntimeData;
 use std::collections::HashMap;
 use std::time::Instant;
 use thiserror::Error;
@@ -102,7 +104,7 @@ pub struct Runtime {
     linker: Linker<ServerWasiView>,
     store: Store<ServerWasiView>,
     components: HashMap<String, Component>,
-    runtime_data: HashMap<String, Val>,
+    runtime_data: RuntimeData,
 }
 
 impl Runtime {
@@ -115,7 +117,7 @@ impl Runtime {
         let store = Store::new(&engine, wasi_view);
         let components = HashMap::new();
         let mut linker = Linker::new(&engine);
-        let runtime_data = HashMap::new();
+        let runtime_data = RuntimeData::new();
 
         Node::add_to_linker(&mut linker, |state| state)
             .context("Failed to link node world")
@@ -132,18 +134,6 @@ impl Runtime {
             components,
             runtime_data,
         }
-    }
-
-    pub fn get_data(&self, key: &str) -> Option<&Val> {
-        self.runtime_data.get(key)
-    }
-
-    pub fn get_data_hashmap(&self) -> &HashMap<String, Val> {
-        &self.runtime_data
-    }
-
-    pub fn set_data(&mut self, key: &str, value: Val) {
-        self.runtime_data.insert(key.to_string(), value);
     }
 
     pub async fn load_component(
