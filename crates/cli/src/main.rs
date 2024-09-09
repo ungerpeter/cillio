@@ -102,6 +102,7 @@ fn get_plugins_from_path(path: &str) -> anyhow::Result<Vec<PathBuf>> {
 }
 
 async fn test_sum_graph() -> Result<(), anyhow::Error> {
+    // Load graph from graph config file
     let total_start_time = Instant::now();
     let start_time = Instant::now();
     println!("Load graph...");
@@ -110,10 +111,10 @@ async fn test_sum_graph() -> Result<(), anyhow::Error> {
     let graph = Graph::new(&config)?;
     println!("Time taken: {} ms\n", start_time.elapsed().as_millis());
 
+    // Load node implementations to plugins
     let start_time = Instant::now();
     println!("Load Plugins...");
     let plugins = get_plugins_from_path("compiled/sum-graph")?;
-
     let graph_node_implementations =
         config
             .clone()
@@ -128,17 +129,20 @@ async fn test_sum_graph() -> Result<(), anyhow::Error> {
     println!("Plugins: {:?}", graph_node_implementations);
     println!("Time taken: {} ms\n", start_time.elapsed().as_millis());
 
+    // Create a graph execution plan
     let start_time = Instant::now();
     println!("Create execution plan...");
     let execution_plan = ExecutionPlan::from_graph(&graph);
     println!("Execution Plan: {:?}", execution_plan);
     println!("Time taken: {} ms\n", start_time.elapsed().as_millis());
 
+    // Create graph runtime
     let start_time = Instant::now();
     println!("Create runtime...");
     let mut runtime = Runtime::new();
     println!("Time taken: {} ms\n", start_time.elapsed().as_millis());
 
+    // Load node implementations to runtime
     let start_time = Instant::now();
     println!("Load node implementations...");
     for (node_id, plugin_path) in graph_node_implementations {
@@ -152,12 +156,14 @@ async fn test_sum_graph() -> Result<(), anyhow::Error> {
     }
     println!("Time taken: {} ms\n", start_time.elapsed().as_millis());
 
+    // Execute graph
     let start_time = Instant::now();
     println!("Execute plan...");
     let results = execution_plan.execute(&mut runtime).await?;
     println!("Results: {:?}", results);
     println!("Time taken: {} ms\n", start_time.elapsed().as_millis());
 
+    // After graph experiment done
     println!(
         "Total Time taken: {} ms",
         total_start_time.elapsed().as_millis()

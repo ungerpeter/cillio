@@ -1,4 +1,4 @@
-use cillio_config::{GraphConfig, NodeData};
+use cillio_config::GraphConfig;
 use petgraph::{
     dot::{Config, Dot},
     graph::{DiGraph, NodeIndex},
