@@ -1,29 +1,76 @@
-use std::panic;
+use std::env;
 
-use color_eyre::{config::HookBuilder, eyre};
+use color_eyre::Result;
+use tracing::error;
 
-use crate::tui;
+pub fn init() -> Result<()> {
+    let (panic_hook, eyre_hook) = color_eyre::config::HookBuilder::default()
+        .panic_section(format!(
+            "This is a bug. Consider reporting it at {}",
+            env!("CARGO_PKG_REPOSITORY")
+        ))
+        .capture_span_trace_by_default(false)
+        .display_location_section(false)
+        .display_env_section(false)
+        .into_hooks();
+    eyre_hook.install()?;
+    std::panic::set_hook(Box::new(move |panic_info| {
+        if let Ok(mut t) = crate::tui::Tui::new() {
+            if let Err(r) = t.exit() {
+                error!("Unable to exit Terminal: {:?}", r);
+            }
+        }
 
-/// This replaces the standard color_eyre panic and error hooks with hooks that
-/// restore the terminal before printing the panic or error.
-pub fn install_hooks() -> color_eyre::Result<()> {
-    let (panic_hook, eyre_hook) = HookBuilder::default().into_hooks();
+        #[cfg(not(debug_assertions))]
+        {
+            use human_panic::{handle_dump, metadata, print_msg};
+            let metadata = metadata!();
+            let file_path = handle_dump(&metadata, panic_info);
+            // prints human-panic message
+            print_msg(file_path, &metadata)
+                .expect("human-panic: printing error message to console failed");
+            eprintln!("{}", panic_hook.panic_report(panic_info)); // prints color-eyre stack trace to stderr
+        }
+        let msg = format!("{}", panic_hook.panic_report(panic_info));
+        error!("Error: {}", strip_ansi_escapes::strip_str(msg));
 
-    // convert from a color_eyre PanicHook to a standard panic hook
-    let panic_hook = panic_hook.into_panic_hook();
-    panic::set_hook(Box::new(move |panic_info| {
-        tui::restore().unwrap();
-        panic_hook(panic_info);
+        #[cfg(debug_assertions)]
+        {
+            // Better Panic stacktrace that is only enabled when debugging.
+            better_panic::Settings::auto()
+                .most_recent_first(false)
+                .lineno_suffix(true)
+                .verbosity(better_panic::Verbosity::Full)
+                .create_panic_handler()(panic_info);
+        }
+
+        std::process::exit(libc::EXIT_FAILURE);
     }));
-
-    // convert from a color_eyre EyreHook to a eyre ErrorHook
-    let eyre_hook = eyre_hook.into_eyre_hook();
-    eyre::set_hook(Box::new(
-        move |error: &(dyn std::error::Error + 'static)| {
-            tui::restore().unwrap();
-            eyre_hook(error)
-        },
-    ))?;
-
     Ok(())
+}
+
+/// Similar to the `std::dbg!` macro, but generates `tracing` events rather
+/// than printing to stdout.
+///
+/// By default, the verbosity level for the generated events is `DEBUG`, but
+/// this can be customized.
+#[macro_export]
+macro_rules! trace_dbg {
+        (target: $target:expr, level: $level:expr, $ex:expr) => {{
+                match $ex {
+                        value => {
+                                tracing::event!(target: $target, $level, ?value, stringify!($ex));
+                                value
+                        }
+                }
+        }};
+        (level: $level:expr, $ex:expr) => {
+                trace_dbg!(target: module_path!(), level: $level, $ex)
+        };
+        (target: $target:expr, $ex:expr) => {
+                trace_dbg!(target: $target, level: tracing::Level::DEBUG, $ex)
+        };
+        ($ex:expr) => {
+                trace_dbg!(level: tracing::Level::DEBUG, $ex)
+        };
 }
