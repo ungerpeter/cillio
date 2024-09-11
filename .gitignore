@@ -1,3 +1,7 @@
 /target
 /compiled
 .structurizr
+.grafana
+.prometheus
+.data
+.config
