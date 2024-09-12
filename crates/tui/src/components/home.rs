@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use color_eyre::Result;
 use ratatui::{prelude::*, widgets::*};
 use tokio::sync::mpsc::UnboundedSender;
@@ -9,6 +11,7 @@ use crate::{action::Action, config::Config};
 pub struct Home {
     command_tx: Option<UnboundedSender<Action>>,
     config: Config,
+    graph_config_path: Option<PathBuf>,
 }
 
 impl Home {
@@ -30,11 +33,10 @@ impl Component for Home {
 
     fn update(&mut self, action: Action) -> Result<Option<Action>> {
         match action {
-            Action::Tick => {
-                // add any logic here that should run on every tick
-            }
-            Action::Render => {
-                // add any logic here that should run on every render
+            Action::SetGraphConfigPath(path) => {
+                if (path.extension().unwrap_or_default() == "json") {
+                    self.graph_config_path = Some(path);
+                }
             }
             _ => {}
         }
@@ -45,8 +47,16 @@ impl Component for Home {
         let layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
-            .split(frame.area());
-        frame.render_widget(Paragraph::new("hello world"), layout[1]);
+            .split(area);
+        frame.render_widget(
+            Paragraph::new(
+                self.graph_config_path
+                    .as_ref()
+                    .and_then(|path| path.to_str())
+                    .unwrap_or("No graph config json selected"),
+            ),
+            layout[0],
+        );
         Ok(())
     }
 }

@@ -7,7 +7,7 @@ use tracing::{debug, info};
 
 use crate::{
     action::Action,
-    components::{fps::FpsCounter, home::Home, Component},
+    components::{file_explorer::FileExplorer, fps::FpsCounter, home::Home, Component},
     config::Config,
     tui::{Event, Tui},
 };
@@ -29,6 +29,7 @@ pub struct App {
 pub enum Mode {
     #[default]
     Home,
+    FileExplorer,
 }
 
 impl App {
@@ -37,7 +38,11 @@ impl App {
         Ok(Self {
             tick_rate,
             frame_rate,
-            components: vec![Box::new(Home::new()), Box::new(FpsCounter::default())],
+            components: vec![
+                Box::new(Home::new()),
+                Box::new(FileExplorer::default()),
+                Box::new(FpsCounter::default()),
+            ],
             should_quit: false,
             should_suspend: false,
             config: Config::new()?,
@@ -114,7 +119,7 @@ impl App {
         };
         match keymap.get(&vec![key]) {
             Some(action) => {
-                info!("Got action: {action:?}");
+                //info!("Got action: {action:?}");
                 action_tx.send(action.clone())?;
             }
             _ => {

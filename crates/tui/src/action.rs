@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
@@ -12,4 +14,7 @@ pub enum Action {
     ClearScreen,
     Error(String),
     Help,
+    MoveRight,
+    MoveLeft,
+    SetGraphConfigPath(PathBuf),
 }
