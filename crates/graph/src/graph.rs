@@ -17,7 +17,7 @@ pub enum GraphError {
     GraphStructureError(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Graph {
     graph: DiGraph<Node, Edge>,
     node_map: HashMap<String, NodeIndex>,

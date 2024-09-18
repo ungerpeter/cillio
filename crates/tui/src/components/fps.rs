@@ -8,6 +8,7 @@ use ratatui::{
     widgets::Paragraph,
     Frame,
 };
+use tracing::info;
 
 use super::Component;
 
@@ -77,7 +78,7 @@ impl Component for FpsCounter {
         Ok(None)
     }
 
-    fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
+    fn render(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
         let [top, _] = Layout::vertical([Constraint::Length(1), Constraint::Min(0)]).areas(area);
         let message = format!(
             "{:.2} ticks/sec, {:.2} FPS",

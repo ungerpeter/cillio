@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Edge {
     pub from_port: Option<String>,
     pub to_port: Option<String>,

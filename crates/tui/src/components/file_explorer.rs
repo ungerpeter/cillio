@@ -1,7 +1,6 @@
 use block::Title;
 use color_eyre::Result;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
-use layout::Offset;
 use ratatui::{prelude::*, widgets::*};
 use std::path::PathBuf;
 use style::palette::tailwind::SLATE;
@@ -17,9 +16,9 @@ const SELECTED_STYLE: Style = Style::new().bg(SLATE.c800).add_modifier(Modifier:
 pub struct FileExplorer {
     command_tx: Option<UnboundedSender<Action>>,
     config: Config,
-    offset: Offset,
     cwd: PathBuf,
     file_list: FileList,
+    hidden: bool,
 }
 
 impl FileExplorer {
@@ -85,6 +84,9 @@ impl FileExplorer {
     fn select_previous(&mut self) {
         self.file_list.state.select_previous();
     }
+    fn hide(&mut self) {
+        self.hidden = true;
+    }
 }
 
 impl Component for FileExplorer {
@@ -106,13 +108,8 @@ impl Component for FileExplorer {
                     self.file_list.state.select_first();
                 }
             }
-            Action::MoveRight => {
-                self.offset.x += 1;
-            }
-            Action::MoveLeft => {
-                if self.offset.x >= 1 {
-                    self.offset.x -= 1;
-                }
+            Action::SetGraphConfigPath(_) => {
+                return Ok(Some(Action::SwitchToGraphExplorer));
             }
             _ => {}
         }
@@ -129,13 +126,15 @@ impl Component for FileExplorer {
             KeyCode::Char('k') | KeyCode::Up => self.select_previous(),
             KeyCode::Enter => {
                 if let Some(selected) = self.file_list.state.selected() {
-                    let file = &self.file_list.items[selected];
+                    let file = self.file_list.items[selected].clone();
                     if file.is_dir {
                         self.cwd = file.path.clone();
                         self.get_and_set_files()?;
                         self.select_none();
                     } else {
-                        return Ok(Some(Action::SetGraphConfigPath(file.path.clone())));
+                        self.hide();
+                        let path = file.path.clone();
+                        return Ok(Some(Action::SetGraphConfigPath(path)));
                     }
                 }
             }
@@ -144,7 +143,10 @@ impl Component for FileExplorer {
         Ok(None)
     }
 
-    fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
+    fn render(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
+        if self.hidden {
+            return Ok(());
+        }
         let title = Title::from(" File explorer ".bold());
         let block = Block::bordered()
             .title(title.alignment(Alignment::Center))
@@ -154,7 +156,7 @@ impl Component for FileExplorer {
             List::new(items)
                 .highlight_style(SELECTED_STYLE)
                 .block(block),
-            area.offset(self.offset),
+            area,
             &mut self.file_list.state,
         );
         Ok(())

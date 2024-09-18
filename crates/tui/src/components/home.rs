@@ -34,7 +34,8 @@ impl Component for Home {
     fn update(&mut self, action: Action) -> Result<Option<Action>> {
         match action {
             Action::SetGraphConfigPath(path) => {
-                if (path.extension().unwrap_or_default() == "json") {
+                let extension = path.extension();
+                if extension.unwrap_or_default() == "json" {
                     self.graph_config_path = Some(path);
                 }
             }
@@ -43,7 +44,7 @@ impl Component for Home {
         Ok(None)
     }
 
-    fn draw(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
+    fn render(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
         let layout = Layout::default()
             .direction(Direction::Vertical)
             .constraints(vec![Constraint::Percentage(50), Constraint::Percentage(50)])

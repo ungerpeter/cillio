@@ -3,11 +3,14 @@ use crossterm::event::KeyEvent;
 use ratatui::prelude::Rect;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 
 use crate::{
     action::Action,
-    components::{file_explorer::FileExplorer, fps::FpsCounter, home::Home, Component},
+    components::{
+        file_explorer::FileExplorer, fps::FpsCounter, graph_explorer::GraphExplorer, home::Home,
+        ComponentManager,
+    },
     config::Config,
     tui::{Event, Tui},
 };
@@ -16,7 +19,7 @@ pub struct App {
     config: Config,
     tick_rate: f64,
     frame_rate: f64,
-    components: Vec<Box<dyn Component>>,
+    component_manager: ComponentManager,
     should_quit: bool,
     should_suspend: bool,
     mode: Mode,
@@ -29,20 +32,30 @@ pub struct App {
 pub enum Mode {
     #[default]
     Home,
-    FileExplorer,
 }
 
 impl App {
-    pub fn new(tick_rate: f64, frame_rate: f64) -> Result<Self> {
+    pub async fn new(tick_rate: f64, frame_rate: f64) -> Result<Self> {
         let (action_tx, action_rx) = mpsc::unbounded_channel();
+
+        let mut component_manager = ComponentManager::new();
+
+        // Register components
+        // component_manager.register_component("Home", Box::new(Home::default()));
+        component_manager.register_component(
+            "GraphExplorer",
+            Box::new(GraphExplorer::default()),
+        );
+        component_manager.register_component(
+            "FileExplorer",
+            Box::new(FileExplorer::default()),
+        );
+        component_manager.register_component("FpsCounter", Box::new(FpsCounter::default()));
+
         Ok(Self {
             tick_rate,
             frame_rate,
-            components: vec![
-                Box::new(Home::new()),
-                Box::new(FileExplorer::default()),
-                Box::new(FpsCounter::default()),
-            ],
+            component_manager,
             should_quit: false,
             should_suspend: false,
             config: Config::new()?,
@@ -55,20 +68,17 @@ impl App {
 
     pub async fn run(&mut self) -> Result<()> {
         let mut tui = Tui::new()?
-            // .mouse(true) // uncomment this line to enable mouse support
+            // .mouse(true) // Uncomment this line to enable mouse support
             .tick_rate(self.tick_rate)
             .frame_rate(self.frame_rate);
         tui.enter()?;
 
-        for component in self.components.iter_mut() {
-            component.register_action_handler(self.action_tx.clone())?;
-        }
-        for component in self.components.iter_mut() {
-            component.register_config_handler(self.config.clone())?;
-        }
-        for component in self.components.iter_mut() {
-            component.init(tui.size()?)?;
-        }
+        // Register handlers and initialize components
+        self.component_manager
+            .register_action_handlers(self.action_tx.clone())?;
+        self.component_manager
+            .register_config_handlers(self.config.clone())?;
+        self.component_manager.init_components(tui.size()?)?;
 
         info!("Starting app event loop");
 
@@ -87,6 +97,9 @@ impl App {
                 break;
             }
         }
+
+        info!("Shutting down");
+
         tui.exit()?;
         Ok(())
     }
@@ -104,11 +117,7 @@ impl App {
             Event::Key(key) => self.handle_key_event(key)?,
             _ => {}
         }
-        for component in self.components.iter_mut() {
-            if let Some(action) = component.handle_events(Some(event.clone()))? {
-                action_tx.send(action)?;
-            }
-        }
+        self.component_manager.handle_events(Some(event), action_tx)?;
         Ok(())
     }
 
@@ -119,17 +128,11 @@ impl App {
         };
         match keymap.get(&vec![key]) {
             Some(action) => {
-                //info!("Got action: {action:?}");
                 action_tx.send(action.clone())?;
             }
             _ => {
-                // If the key was not handled as a single key action,
-                // then consider it for multi-key combinations.
                 self.last_tick_key_events.push(key);
-
-                // Check for multi-key combinations
                 if let Some(action) = keymap.get(&self.last_tick_key_events) {
-                    info!("Got action: {action:?}");
                     action_tx.send(action.clone())?;
                 }
             }
@@ -144,7 +147,7 @@ impl App {
             }
             match action {
                 Action::Tick => {
-                    self.last_tick_key_events.drain(..);
+                    self.last_tick_key_events.clear();
                 }
                 Action::Quit => self.should_quit = true,
                 Action::Suspend => self.should_suspend = true,
@@ -154,11 +157,7 @@ impl App {
                 Action::Render => self.render(tui)?,
                 _ => {}
             }
-            for component in self.components.iter_mut() {
-                if let Some(action) = component.update(action.clone())? {
-                    self.action_tx.send(action)?
-                };
-            }
+            self.component_manager.handle_action(action, self.action_tx.clone())?;
         }
         Ok(())
     }
@@ -171,12 +170,9 @@ impl App {
 
     fn render(&mut self, tui: &mut Tui) -> Result<()> {
         tui.draw(|frame| {
-            for component in self.components.iter_mut() {
-                if let Err(err) = component.draw(frame, frame.area()) {
-                    let _ = self
-                        .action_tx
-                        .send(Action::Error(format!("Failed to draw: {:?}", err)));
-                }
+            if let Err(err) = self.component_manager.render(frame, frame.area()) {
+                error!("Failed to render components: {:?}", err);
+                let _ = self.action_tx.send(Action::Error(err.to_string()));
             }
         })?;
         Ok(())

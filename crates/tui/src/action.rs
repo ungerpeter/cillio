@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-
+use cillio_config::GraphConfig;
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
@@ -14,7 +14,10 @@ pub enum Action {
     ClearScreen,
     Error(String),
     Help,
-    MoveRight,
-    MoveLeft,
+    SwitchToHome,
+    SwitchToGraphExplorer,
+    SwitchToFileExplorer,
+    //---
     SetGraphConfigPath(PathBuf),
+    SetGraphConfig(GraphConfig),
 }

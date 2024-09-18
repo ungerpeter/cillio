@@ -11,7 +11,9 @@ mod components;
 mod config;
 mod errors;
 mod logging;
+mod state;
 mod tui;
+mod graph_renderer;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -19,7 +21,7 @@ async fn main() -> Result<()> {
     crate::logging::init()?;
 
     let args = Cli::parse();
-    let mut app = App::new(args.tick_rate, args.frame_rate)?;
+    let mut app = App::new(args.tick_rate, args.frame_rate).await?;
     app.run().await?;
     Ok(())
 }
