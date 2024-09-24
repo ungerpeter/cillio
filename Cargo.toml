@@ -5,7 +5,8 @@ members = [
     "crates/graph",
     "crates/components/*",
     "crates/runtime",
-    "crates/tui",
+    "crates/tui", 
+    "crates/observability",
 ]
 resolver = "2"
 

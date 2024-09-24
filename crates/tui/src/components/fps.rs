@@ -8,7 +8,6 @@ use ratatui::{
     widgets::Paragraph,
     Frame,
 };
-use tracing::info;
 
 use super::Component;
 

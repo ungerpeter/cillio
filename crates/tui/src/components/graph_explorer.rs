@@ -6,7 +6,7 @@ use tracing::info;
 
 use super::Component;
 
-use crate::action::Action;
+use crate::{action::Action, graph_renderer::LayoutDirection};
 
 // Import the GraphRenderer
 use crate::graph_renderer::GraphRenderer;
@@ -29,7 +29,7 @@ impl GraphExplorer {
 
     pub fn with_graph_config(graph_config: GraphConfig) -> Self {
         let graph = CillioGraph::new(&graph_config).unwrap();
-        let renderer = GraphRenderer::new(&graph);
+        let renderer = GraphRenderer::new(LayoutDirection::LeftToRight);
         Self {
             graph_config: Some(graph_config),
             graph: Some(graph),
@@ -39,7 +39,7 @@ impl GraphExplorer {
 
     pub fn set_graph_config(&mut self, graph_config: GraphConfig) {
         let graph = CillioGraph::new(&graph_config).unwrap();
-        let renderer = GraphRenderer::new(&graph);
+        let renderer = GraphRenderer::new(LayoutDirection::LeftToRight);
         self.graph_config = Some(graph_config);
         self.graph = Some(graph);
         self.renderer = Some(renderer);
@@ -67,7 +67,7 @@ impl Component for GraphExplorer {
     }
 
     fn render(&mut self, frame: &mut Frame, area: Rect) -> Result<()> {
-        if let (Some(graph), Some(renderer)) = (self.graph.as_ref(), self.renderer.as_ref()) {
+        if let (Some(graph), Some(renderer)) = (self.graph.as_ref(), self.renderer.as_mut()) {
             renderer.render(graph, frame, area);
         } else {
             let paragraph = ratatui::widgets::Paragraph::new("No graph configuration set")
